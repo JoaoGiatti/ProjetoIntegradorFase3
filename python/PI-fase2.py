@@ -15,7 +15,57 @@ cursor = Connection.cursor()
 
 comando = 0
 
-#inserção de dados
+def criptografia(descricaoEscrita):
+    desc = descricaoEscrita
+    desc=desc.lower()
+    alfa=['z','a', 'b', 'c','d', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y',]
+    A={'cima':[5,3],'baixo':[7,8]}
+    res=[]
+    di=[]
+    a=[]
+    c=[]
+    for d in range(len(desc)):
+        al=desc[d]
+        c.append(al)
+        x=alfa.index(al)
+        di.append(x)
+        if d%2!=0:
+            x=((di[d]*A['cima'][1])+(di[d-1]*A['cima'][0]))%26
+            y=((di[d]*A['baixo'][1])+(di[d-1]*A['baixo'][0]))%26
+            a.append(x)
+            a.append(y)
+            res.append(alfa[x])
+            res.append(alfa[y])
+    desc=''
+    for k in res:
+        desc+=k
+    return desc
+
+def descriptografar(desc):  
+    desc=desc.lower()
+    alfa=['z','a', 'b', 'c','d', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y',]
+    A={'cima':[88,-33],'baixo':[-77,55]}
+    res=[]
+    res=[]
+    di=[]
+    a=[]
+    c=[]
+    for d in range(len(desc)):
+        al=desc[d]
+        c.append(al)
+        x=alfa.index(al)
+        di.append(x)
+        if d%2!=0:
+            x=((di[d]*A['cima'][1])+(di[d-1]*A['cima'][0]))%26
+            y=((di[d]*A['baixo'][1])+(di[d-1]*A['baixo'][0]))%26
+            a.append(x)
+            a.append(y)
+            res.append(alfa[x])
+            res.append(alfa[y])
+    desc=''
+    for k in res:
+        desc+=k
+    return desc
 
 def cadastro():
     print(Fore.RED + '''
@@ -25,7 +75,7 @@ def cadastro():
     ''')
  #   cod = int(input("Digite o código do produto: "))
     nome = input("Digite o nome do produto: ")
-    desc = input("Digite a descrição do produto: ")
+    descricaoEscrita = input("Digite a descrição do produto: ")
     cp = float(input("Digite o custo do produto: "))
     cf = float(input("Digite o custo fixo/administrativo: "))
     cv = float(input("Digite o valor da comissão de vendas: "))
@@ -87,7 +137,7 @@ def cadastro():
         novo_codigo = ultimo_codigo + 1
 
     # Adicionando a nova linha à tabela 'Produtos'
-    cursor.execute("insert into Produtos values (:1, :2, :3, :4, :5, :6, :7, :8)", (novo_codigo, nome, desc, cp, cf, cv, iv, ml))
+    cursor.execute("insert into Produtos values (:1, :2, :3, :4, :5, :6, :7, :8)", (novo_codigo, nome, criptografia(descricaoEscrita), cp, cf, cv, iv, ml))
     Connection.commit()
 
 def tabela():
@@ -95,10 +145,11 @@ def tabela():
 ================================================
      Aqui esão os produtos já cadastrados:
 ================================================
-CÓD. | NOME | DESCRIÇÃO | CP | CF | CV | IV | ML
+'''+Fore.BLUE+'''CÓD.'''+Fore.GREEN+''' | '''+Fore.LIGHTMAGENTA_EX+'''NOME'''+Fore.GREEN+''' | '''+Fore.YELLOW+'''DESCRIÇÃO '''+Fore.GREEN+'''| '''+Fore.RED+'''CP'''+Fore.GREEN+''' | '''+Fore.CYAN+'''CF'''+Fore.GREEN+''' | '''+Fore.LIGHTBLACK_EX+'''CV'''+Fore.GREEN+''' | '''+Fore.MAGENTA+'''IV'''+Fore.GREEN+''' | '''+Fore.LIGHTGREEN_EX+'''ML
 ''')
     for row in cursor.execute("SELECT * FROM produtos ORDER BY codigo_produto ASC"):
-        print(row)
+        desc_descripto = descriptografar(row[2])
+        print(Fore.BLUE, row[0], Fore.LIGHTMAGENTA_EX, row[1], Fore.YELLOW, desc_descripto, Fore.RED, row[3], Fore.CYAN, row[4], Fore.LIGHTBLACK_EX, row[5],Fore.MAGENTA, row[6], Fore.LIGHTGREEN_EX, row[7])
     print(Fore.RESET)
 
 def alterar():
@@ -106,10 +157,11 @@ def alterar():
 ================================================
      Aqui esão os produtos já cadastrados:
 ================================================
-CÓD. | NOME | DESCRIÇÃO | CP | CF | CV | IV | ML
+'''+Fore.BLUE+'''CÓD.'''+Fore.GREEN+''' | '''+Fore.LIGHTMAGENTA_EX+'''NOME'''+Fore.GREEN+''' | '''+Fore.YELLOW+'''DESCRIÇÃO '''+Fore.GREEN+'''| '''+Fore.RED+'''CP'''+Fore.GREEN+''' | '''+Fore.CYAN+'''CF'''+Fore.GREEN+''' | '''+Fore.LIGHTBLACK_EX+'''CV'''+Fore.GREEN+''' | '''+Fore.MAGENTA+'''IV'''+Fore.GREEN+''' | '''+Fore.LIGHTGREEN_EX+'''ML
 ''')
     for row in cursor.execute("SELECT * FROM produtos ORDER BY codigo_produto ASC"):
-        print(row)
+        desc_descripto = descriptografar(row[2])
+        print(Fore.BLUE, row[0], Fore.LIGHTMAGENTA_EX, row[1], Fore.YELLOW, desc_descripto, Fore.RED, row[3], Fore.CYAN, row[4], Fore.LIGHTBLACK_EX, row[5],Fore.MAGENTA, row[6], Fore.LIGHTGREEN_EX, row[7])
     print(Fore.RESET)
 
     codAlterar = int(input("Digite o código do produto que deseja alterar: "))
@@ -121,7 +173,7 @@ CÓD. | NOME | DESCRIÇÃO | CP | CF | CV | IV | ML
     ''')
     #   cod = int(input("Digite o código do produto: "))
     nome = input("Digite o novo nome do produto: ")
-    desc = input("Digite a nova descrição do produto: ")
+    descricaoEscrita = input("Digite a descrição do produto: ")
     cp = float(input("Digite o novo custo do produto: "))
     cf = float(input("Digite o novo custo fixo/administrativo: "))
     cv = float(input("Digite o novo valor da comissão de vendas: "))
@@ -131,7 +183,7 @@ CÓD. | NOME | DESCRIÇÃO | CP | CF | CV | IV | ML
 
     cursor.execute(f"""
                     UPDATE produtos
-                    SET codigo_produto = {codAlterar}, nome_produto = '{nome}', Descrição_produto = '{desc}', custo_produto = {cp}, custo_fixo = {cf}, comissão_vendas = {cv}, impostos = {iv}, rentabilidade = {ml}
+                    SET codigo_produto = {codAlterar}, nome_produto = '{nome}', Descrição_produto = '{criptografia(descricaoEscrita)}', custo_produto = {cp}, custo_fixo = {cf}, comissão_vendas = {cv}, impostos = {iv}, rentabilidade = {ml}
                     WHERE codigo_produto = {codAlterar}
                     """)
     cursor.execute("COMMIT")
@@ -143,10 +195,11 @@ def excluir():
 ================================================
      Aqui esão os produtos já cadastrados:
 ================================================
-CÓD. | NOME | DESCRIÇÃO | CP | CF | CV | IV | ML
+'''+Fore.BLUE+'''CÓD.'''+Fore.GREEN+''' | '''+Fore.LIGHTMAGENTA_EX+'''NOME'''+Fore.GREEN+''' | '''+Fore.YELLOW+'''DESCRIÇÃO '''+Fore.GREEN+'''| '''+Fore.RED+'''CP'''+Fore.GREEN+''' | '''+Fore.CYAN+'''CF'''+Fore.GREEN+''' | '''+Fore.LIGHTBLACK_EX+'''CV'''+Fore.GREEN+''' | '''+Fore.MAGENTA+'''IV'''+Fore.GREEN+''' | '''+Fore.LIGHTGREEN_EX+'''ML
 ''')
     for row in cursor.execute("SELECT * FROM produtos ORDER BY codigo_produto ASC"):
-        print(row)
+        desc_descripto = descriptografar(row[2])
+        print(Fore.BLUE, row[0], Fore.LIGHTMAGENTA_EX, row[1], Fore.YELLOW, desc_descripto, Fore.RED, row[3], Fore.CYAN, row[4], Fore.LIGHTBLACK_EX, row[5],Fore.MAGENTA, row[6], Fore.LIGHTGREEN_EX, row[7])
     print(Fore.RESET)
 
     codExcluir = int(input("Digite o código do produto que deseja excluir: "))
@@ -203,19 +256,19 @@ def ClassificarLucro():
         PV=(cp/(1-((cf+cv+iv+ml)/100)))
 
         print(Fore.YELLOW)
-        print(row)
+        desc_descripto = descriptografar(row[2])
+        print(Fore.BLUE, row[0], Fore.LIGHTMAGENTA_EX, row[1], Fore.YELLOW, desc_descripto, Fore.RED, row[3], Fore.CYAN, row[4], Fore.LIGHTBLACK_EX, row[5],Fore.MAGENTA, row[6], Fore.LIGHTGREEN_EX, row[7])
         print(Fore.RESET)
-
         print(f'''
     Descrição ----------------- Valor - % 
-    A.Preço de venda            {round(PV,2)}   100%
-    B.Custo de Aquisição        {round(cp,2)}   {round(((cp*100)/PV),2)}%
-    C.Receita Bruta             {round((PV-cp),2)}  {round((100-(cp*100)/PV),2)}% 
-    D.Custo fixo/Administrativo {round((PV*(cf/100)),2)}  {cf}%
-    E.Comisão de vendas         {round(((cv/100)*PV),2)}  {cv}% 
-    F.Impostos                  {round(PV*(iv/100),2)}  {iv}% 
-    G.Outros custos             {round(((PV*(cf/100))+((cv/100)*PV)+((iv/100)*PV)),2)}  {cf+cv+iv}%
-    H.Rentabilidade             {round((PV-cp)-((PV*(cf/100))+((cv/100)*PV)+((iv/100)*PV)),2)}  {round(((100-(cp*100)/PV) -(cf+cv+iv)),2)}%\n
+    A. Preço de venda            {round(PV,2)}   100%
+    '''+Fore.BLUE+'''B. '''+Fore.RESET+f'''Custo de Aquisição        {round(cp,2)}   {round(((cp*100)/PV),2)}%
+    C. Receita Bruta             {round((PV-cp),2)}  {round((100-(cp*100)/PV),2)}% 
+    '''+Fore.CYAN+'''D. '''+Fore.RESET+f'''Custo fixo/Administrativo {round((PV*(cf/100)),2)}  {cf}%
+    '''+Fore.LIGHTBLACK_EX+'''E. '''+Fore.RESET+f'''Comisão de vendas         {round(((cv/100)*PV),2)}  {cv}% 
+    '''+Fore.MAGENTA+'''F. '''+Fore.RESET+f'''Impostos                  {round(PV*(iv/100),2)}  {iv}% 
+    G. Outros custos             {round(((PV*(cf/100))+((cv/100)*PV)+((iv/100)*PV)),2)}  {cf+cv+iv}%
+    '''+Fore.LIGHTGREEN_EX+'''H. '''+Fore.RESET+f'''Rentabilidade             {round((PV-cp)-((PV*(cf/100))+((cv/100)*PV)+((iv/100)*PV)),2)}  {round(((100-(cp*100)/PV) -(cf+cv+iv)),2)}%\n
     ''')
         
         if ((100-(cp*100)/PV) -(cf+cv+iv) < 0):
@@ -262,4 +315,4 @@ Digite o número do comando: '''))
     elif comando == 7:
         ClassificarLucro()
     else:
-        break
+        break   
