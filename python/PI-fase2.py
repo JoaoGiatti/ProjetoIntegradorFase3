@@ -2,10 +2,6 @@ import oracledb
 from colorama import init, Fore, Back, Style
 init()
 
-# importar "colorama" e "oracledb"
-# mudar informações do BD
-# Tirar comentários do CREATE TABLE caso ainda não possua a tabela criada, depois, o CREATE é inútil
-
 Connection = oracledb.connect(
     user = "BD150224214",
     password = "Fbxfk9",
@@ -73,7 +69,8 @@ def cadastro():
             Cadastro de Produtos
 ================================================
     ''')
- #   cod = int(input("Digite o código do produto: "))
+
+    # GUARDA INFORMAÇÕES EM VARIÁVEIS
     nome = input("Digite o nome do produto: ")
     descricaoEscrita = input("Digite a descrição do produto: ")
     cp = float(input("Digite o custo do produto: "))
@@ -87,7 +84,8 @@ def cadastro():
         Cáculo Preço de Venda (PV)
 ================================================ 
     \n''')
-    #cálculo pv
+
+    # CALCULA O PV COM AS VARIÁVEIS
     PV=(cp/(1-((cf+cv+iv+ml)/100)))
     print(f'''
     Descrição ----------------- Valor - % 
@@ -101,26 +99,23 @@ def cadastro():
     H.Rentabilidade             {round((PV-cp)-((PV*(cf/100))+((cv/100)*PV)+((iv/100)*PV)),2)}  {round(((100-(cp*100)/PV) -(cf+cv+iv)),2)}%\n
     ''')
 
-
-
-    if ((100-(cp*100)/PV) -(cf+cv+iv) < 0):
+    #CÁLCULO DE MARGEM E PERCENTUAL DE LUCRO
+    clucro = (100-(cp*100)/PV) -(cf+cv+iv)
+    if (clucro < 0):
         print("------- PREJUIZO -------\n")
-    elif((100-(cp*100)/PV) -(cf+cv+iv) == 0):
+    elif(clucro == 0):
         print("------- EQUILÍBRIO -------\n")
-    elif(((100-(cp*100)/PV) -(cf+cv+iv) > 0) and ((100-(cp*100)/PV) -(cf+cv+iv) <= 10)):
+    elif((clucro > 0) and (clucro <= 10)):
         print("------- LUCRO BAIXO -------\n")
-    elif(((100-(cp*100)/PV) -(cf+cv+iv) > 10) and ((100-(cp*100)/PV) -(cf+cv+iv) <= 20)):
+    elif((clucro > 10) and (clucro <= 20)):
         print("------- LUCRO MÉDIO -------\n")
     else:
         print("------- LUCRO ALTO -------\n")
-    print(f"O lucro do(a) {nome} é de {round((100-(cp*100)/PV) -(cf+cv+iv), 2)}% (R${round((PV-cp)-((PV*(cf/100))+((cv/100)*PV)+((iv/100)*PV)),2)})\n" + Fore.RESET)
-
+    print(f"O lucro do(a) {nome} é de {round(clucro, 2)}% (R${round((PV-cp)-((PV*(cf/100))+((cv/100)*PV)+((iv/100)*PV)),2)})\n" + Fore.RESET)
     # AUTO_INCREMENT MANUAL
-    # recuperando o último código de produto da tabela
-
-    # Verificando se há linhas na tabela
-    cursor.execute("SELECT COUNT(*) FROM produtos")
-    total_linhas = cursor.fetchone()[0]
+    
+    cursor.execute("SELECT COUNT(*) FROM produtos")    #  verificando se há linhas na tabela
+    total_linhas = cursor.fetchone()[0]     # recuperando o último código de produto da tabela
 
     # se não houver linhas, cod será 1
     if total_linhas == 0:
@@ -141,37 +136,38 @@ def cadastro():
     Connection.commit()
 
 def tabela():
-    print(Fore.GREEN + '''
+    print(f'''{Fore.GREEN}
 ================================================
-     Aqui esão os produtos já cadastrados:
+     Aqui estão os produtos já cadastrados:
 ================================================
-'''+Fore.BLUE+'''CÓD.'''+Fore.GREEN+''' | '''+Fore.LIGHTMAGENTA_EX+'''NOME'''+Fore.GREEN+''' | '''+Fore.YELLOW+'''DESCRIÇÃO '''+Fore.GREEN+'''| '''+Fore.RED+'''CP'''+Fore.GREEN+''' | '''+Fore.CYAN+'''CF'''+Fore.GREEN+''' | '''+Fore.LIGHTBLACK_EX+'''CV'''+Fore.GREEN+''' | '''+Fore.MAGENTA+'''IV'''+Fore.GREEN+''' | '''+Fore.LIGHTGREEN_EX+'''ML
-''')
-    for row in cursor.execute("SELECT * FROM produtos ORDER BY codigo_produto ASC"):
-        desc_descripto = descriptografar(row[2])
+{Fore.BLUE}CÓD. {Fore.GREEN}| {Fore.LIGHTMAGENTA_EX}NOME {Fore.GREEN}| {Fore.YELLOW}DESCRIÇÃO {Fore.GREEN}| {Fore.RED}CP {Fore.GREEN}| {Fore.CYAN}CF {Fore.GREEN}| {Fore.LIGHTBLACK_EX}CV {Fore.GREEN}| {Fore.MAGENTA}IV {Fore.GREEN}| {Fore.LIGHTGREEN_EX}ML
+{Fore.RESET}''')
+    for row in cursor.execute("SELECT * FROM produtos ORDER BY codigo_produto ASC"):    # CADA LINHA É GUARDADA EM UMA VARIÁVEL ROW
+        desc_descripto = descriptografar(row[2])    # DESCRIPTOGRAFA A TERCEIRA COLUNA DA TABELA (DESC)
         print(Fore.BLUE, row[0], Fore.LIGHTMAGENTA_EX, row[1], Fore.YELLOW, desc_descripto, Fore.RED, row[3], Fore.CYAN, row[4], Fore.LIGHTBLACK_EX, row[5],Fore.MAGENTA, row[6], Fore.LIGHTGREEN_EX, row[7])
     print(Fore.RESET)
 
 def alterar():
-    print(Fore.GREEN + '''
+    # CONSULTA DA TABELA
+    print(f'''{Fore.GREEN}
 ================================================
-     Aqui esão os produtos já cadastrados:
+     Aqui estão os produtos já cadastrados:
 ================================================
-'''+Fore.BLUE+'''CÓD.'''+Fore.GREEN+''' | '''+Fore.LIGHTMAGENTA_EX+'''NOME'''+Fore.GREEN+''' | '''+Fore.YELLOW+'''DESCRIÇÃO '''+Fore.GREEN+'''| '''+Fore.RED+'''CP'''+Fore.GREEN+''' | '''+Fore.CYAN+'''CF'''+Fore.GREEN+''' | '''+Fore.LIGHTBLACK_EX+'''CV'''+Fore.GREEN+''' | '''+Fore.MAGENTA+'''IV'''+Fore.GREEN+''' | '''+Fore.LIGHTGREEN_EX+'''ML
-''')
+{Fore.BLUE}CÓD. {Fore.GREEN}| {Fore.LIGHTMAGENTA_EX}NOME {Fore.GREEN}| {Fore.YELLOW}DESCRIÇÃO {Fore.GREEN}| {Fore.RED}CP {Fore.GREEN}| {Fore.CYAN}CF {Fore.GREEN}| {Fore.LIGHTBLACK_EX}CV {Fore.GREEN}| {Fore.MAGENTA}IV {Fore.GREEN}| {Fore.LIGHTGREEN_EX}ML
+{Fore.RESET}''')
     for row in cursor.execute("SELECT * FROM produtos ORDER BY codigo_produto ASC"):
-        desc_descripto = descriptografar(row[2])
+        desc_descripto = descriptografar(row[2])    # DESCRIPTOGRAFA A TERCEIRA COLUNA PARA CONSULTA DA TABELA
         print(Fore.BLUE, row[0], Fore.LIGHTMAGENTA_EX, row[1], Fore.YELLOW, desc_descripto, Fore.RED, row[3], Fore.CYAN, row[4], Fore.LIGHTBLACK_EX, row[5],Fore.MAGENTA, row[6], Fore.LIGHTGREEN_EX, row[7])
     print(Fore.RESET)
 
-    codAlterar = int(input("Digite o código do produto que deseja alterar: "))
+    codAlterar = int(input("Digite o código do produto que deseja alterar: ")) # USUÁRIO ESCOLHE O ID DO PRODUTO PARA ALTERAR
 
     print(Fore.RED + '''
 ================================================
               Alterar Produto
 ================================================
     ''')
-    #   cod = int(input("Digite o código do produto: "))
+    # CÓDIGO É O MESMO QUE O QUE O USUÁRIO ESCOLHEU PARA ALTERAR
     nome = input("Digite o novo nome do produto: ")
     descricaoEscrita = input("Digite a descrição do produto: ")
     cp = float(input("Digite o novo custo do produto: "))
@@ -185,29 +181,30 @@ def alterar():
                     UPDATE produtos
                     SET codigo_produto = {codAlterar}, nome_produto = '{nome}', Descrição_produto = '{criptografia(descricaoEscrita)}', custo_produto = {cp}, custo_fixo = {cf}, comissão_vendas = {cv}, impostos = {iv}, rentabilidade = {ml}
                     WHERE codigo_produto = {codAlterar}
-                    """)
-    cursor.execute("COMMIT")
+                    """)    # USA A FUNÇÃO UPDATE PARA SOBRESCREVER AS INFORMAÇÕES DA LINHA QUE CONTÉM O CÓDIGO_PRODUTO IGUAL AO CÓDIGO QUE O USUÁRIO QUIS ALTERAR
+    cursor.execute("COMMIT")    # ATUALIZA O BD
 
     print(Fore.LIGHTMAGENTA_EX + "Produto alterado com sucesso!" + Fore.RESET)
 
 def excluir():
-    print(Fore.GREEN + '''
+    # CONSULTA DA TABELA
+    print(f'''{Fore.GREEN}
 ================================================
-     Aqui esão os produtos já cadastrados:
+     Aqui estão os produtos já cadastrados:
 ================================================
-'''+Fore.BLUE+'''CÓD.'''+Fore.GREEN+''' | '''+Fore.LIGHTMAGENTA_EX+'''NOME'''+Fore.GREEN+''' | '''+Fore.YELLOW+'''DESCRIÇÃO '''+Fore.GREEN+'''| '''+Fore.RED+'''CP'''+Fore.GREEN+''' | '''+Fore.CYAN+'''CF'''+Fore.GREEN+''' | '''+Fore.LIGHTBLACK_EX+'''CV'''+Fore.GREEN+''' | '''+Fore.MAGENTA+'''IV'''+Fore.GREEN+''' | '''+Fore.LIGHTGREEN_EX+'''ML
-''')
+{Fore.BLUE}CÓD. {Fore.GREEN}| {Fore.LIGHTMAGENTA_EX}NOME {Fore.GREEN}| {Fore.YELLOW}DESCRIÇÃO {Fore.GREEN}| {Fore.RED}CP {Fore.GREEN}| {Fore.CYAN}CF {Fore.GREEN}| {Fore.LIGHTBLACK_EX}CV {Fore.GREEN}| {Fore.MAGENTA}IV {Fore.GREEN}| {Fore.LIGHTGREEN_EX}ML
+{Fore.RESET}''')
     for row in cursor.execute("SELECT * FROM produtos ORDER BY codigo_produto ASC"):
         desc_descripto = descriptografar(row[2])
         print(Fore.BLUE, row[0], Fore.LIGHTMAGENTA_EX, row[1], Fore.YELLOW, desc_descripto, Fore.RED, row[3], Fore.CYAN, row[4], Fore.LIGHTBLACK_EX, row[5],Fore.MAGENTA, row[6], Fore.LIGHTGREEN_EX, row[7])
     print(Fore.RESET)
 
-    codExcluir = int(input("Digite o código do produto que deseja excluir: "))
+    codExcluir = int(input("Digite o código do produto que deseja excluir: "))  # PERGUNTA QUAL O CÓDIGO DO PRODUTO QUE O USUÁRIO DESEJA EXCLUIR
 
     cursor.execute(f"""
                     DELETE FROM produtos WHERE codigo_produto = {codExcluir}
-                    """)
-    cursor.execute("COMMIT")
+                    """)    # USA A FUNÇÃO DELETE PARA EXCLUIR A LINHA A QUAL CONTÉM O CÓDIGO QUE O USUÁRIO ESCOLHEU
+    cursor.execute("COMMIT")    # ATUALIZA O BD
     print(Fore.LIGHTMAGENTA_EX + "\nProduto excluido com sucesso!" + Fore.RESET)
 
 def criarTabela():
@@ -240,13 +237,10 @@ def zerarTabela():
     print(Fore.LIGHTMAGENTA_EX + "\nTabela zerada com sucesso!" + Fore.RESET)
 
 def ClassificarLucro():
-    # print(Fore.LIGHTMAGENTA_EX + "\nAinda trabalhando nisso!" + Fore.RESET)
-
+    # MOSTRA O PREÇO DE VENDA E CÁLCULO DE LUCRO DE CADA LINHA DO BANCO
     cursor.execute('SELECT * FROM produtos ORDER BY codigo_produto ASC')
     for row in cursor:
-        cod = row[0]
         nome = row[1]
-        desc = row[2]
         cp = row[3]
         cf = row[4]
         cv = row[5]
